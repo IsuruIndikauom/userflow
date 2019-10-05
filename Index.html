@@ -1,0 +1,117 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+<div id="container"></div>
+<div class="center">
+    <div class="bar">Colour change from red to green in the line according to the accepted application percentage among them</div>
+</div>
+<ul>
+        <li>Create account - 0%</li>
+        <li>Activate account - 20%</li>
+        <li>Provide profile information - 40%</li>
+        <li>What jobs are you interested in? - 50%</li>
+        <li>Do you have relevant experience in these jobs? - 70%</li>
+        <li>Are you a freelancer? - 90%</li>
+        <li>Waiting for approval - 99%</li>
+        <li>Approval - 100%</li>
+      </ul>
+<script>
+
+var series=[]
+// Calling API in backend
+$.ajax({
+    url: "http://127.0.0.1:8000/api/data",
+    context: document.body,
+    success: function(result){
+        Object.keys(result).forEach(function(key) {
+        series.push({
+            name : key,
+            data: result[key]['coodinates'],
+            color: hsl_col_perc(result[key]['colour'],0,120),
+        });     
+    });
+    chart(result);
+    }
+});
+
+function chart(input_array){
+    Highcharts.chart('container', {
+
+    title: {
+        
+        text: 'User flow of Temper (Line per week)'
+    },
+
+    yAxis: {
+        title: {
+            text: 'Prcentage of users'
+        }
+    },
+    xAxis: {
+        title: {
+            text: 'Percentage of workflow'
+        }
+    },
+    legend: {
+        layout: 'vertical',
+        align: 'right',
+        verticalAlign: 'middle'
+    },
+
+    plotOptions: {
+        series: {
+            label: {
+                connectorAllowed: false
+            },
+            pointStart: 0,
+            pointInterval: 1
+        }
+    },
+
+    series,
+
+    responsive: {
+        rules: [{
+            condition: {
+                maxWidth: 500
+            },
+            chartOptions: {
+                legend: {
+                    layout: 'horizontal',
+                    align: 'center',
+                    verticalAlign: 'bottom'
+                }
+            }
+        }]
+    }
+
+    });
+}
+// getting colour between red and green
+function hsl_col_perc(percent, start, end) {
+var a = percent / 100,
+  b = (end - start) * a,
+      c = b + start;
+
+// Return a CSS HSL string
+return 'hsl('+c+', 100%, 50%)';
+}
+
+
+</script>
+
+<style>
+    .bar{
+        color: white;
+        margin: 0 auto;
+        height: 40px;
+        width: 500px;
+        background: linear-gradient(to right, #cc0000 0%, #00ff00 100%)
+    }
+    .center{
+        text-align: center;
+    }
+</style>
